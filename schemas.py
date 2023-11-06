@@ -13,6 +13,7 @@ class Category(BaseModel):
 
 class Site(BaseModel):
     id: int
+    title: str
     link: str
     description: str
 

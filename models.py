@@ -43,5 +43,6 @@ class Site(Base):
     __tablename__ = "site"
 
     id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
     link = Column(String)
     description = Column(Text, index=True)

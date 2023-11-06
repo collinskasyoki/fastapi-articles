@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi_pagination import Page, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
@@ -21,6 +23,10 @@ app.add_middleware(
     allow_methods =["*"],
     allow_headers=["*"],
 )
+
+app.mount("/thumbnails", StaticFiles(directory="media/thumbnails"))
+app.mount("/images", StaticFiles(directory="media/images"))
+
 def get_db():
     db = SessionLocal()
     try:
@@ -40,7 +46,7 @@ async def categories(db: Session = Depends(get_db)):
     return categories
 
 @app.get("/categories/{id}", response_model=schemas.Category)
-def one_category(id: int, db: Session = Depends(get_db)):
+async def one_category(id: int, db: Session = Depends(get_db)):
     category = db.query(models.Category).filter(models.Category.id == id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
@@ -63,18 +69,32 @@ async def one_category_articles(id: int, db: Session = Depends(get_db)):
     return paginate(db, articles)
 
 @app.get("/articles", response_model=Page[schemas.Article])
-async def articles(db: Session = Depends(get_db)):
+async def articles(request: Request, db: Session = Depends(get_db)):
     query = select(models.Article).order_by(models.Article.date_published.desc())
-    
-    return paginate(db, query)
+    articles = paginate(db, query)
+    for article in articles.items:
+        article.image_thumbnail_url = str(request.base_url) + article.image_thumbnail_url
+    return articles
 
 @app.get("/articles/{id}", response_model=schemas.ArticleSchema)
-async def one_article(id: int, db: Session = Depends(get_db)):
+async def one_article(request: Request, id: int, db: Session = Depends(get_db)):
     article = db.query(models.Article).filter(models.Article.id == id).first()
 
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
     
-    return article
+    article_data = {
+        "id": article.id,
+        "content": article.content,
+        "date_modified": article.date_modified,
+        "date_published": article.date_published,
+        "link": article.link,
+        "title": article.title,
+        "image_url": str(request.base_url) + article.image_url if article.image_url else None,
+        "image_thumbnail_url": str(request.base_url) + article.image_thumbnail_url if article.image_thumbnail_url else None,
+        "categories": article.categories
+    }
+
+    return article_data
 
 add_pagination(app)

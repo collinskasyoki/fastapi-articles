@@ -1,5 +1,6 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Table
+from sqlalchemy import Column, ForeignKey, Integer, String, Text, Table
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from database import Base
 
@@ -28,3 +29,11 @@ class Article(Base):
     link = Column(String)
     title = Column(String, index=True)
     categories = relationship("Category", secondary="category_articles", back_populates="articles")
+
+    @hybrid_property
+    def image_url(self):
+        return "images/" + self.image_file
+    
+    @hybrid_property
+    def image_thumbnail_url(self):
+        return "thumbnails/" + self.image_file

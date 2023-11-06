@@ -54,7 +54,7 @@ async def one_category(id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/categories/{id}/articles", response_model=Page[schemas.Article])
-async def one_category_articles(id: int, db: Session = Depends(get_db)):
+async def one_category_articles(request: Request, id: int, db: Session = Depends(get_db)):
     category = db.query(models.Category).filter(models.Category.id == id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
@@ -66,7 +66,10 @@ async def one_category_articles(id: int, db: Session = Depends(get_db)):
         .distinct(models.Article.id)
         .order_by(models.Article.id, models.Article.date_published.desc()))
 
-    return paginate(db, articles)
+    articles = paginate(db, articles)
+    for article in articles.items:
+        article.image_thumbnail_url = str(request.base_url) + article.image_thumbnail_url
+    return articles
 
 @app.get("/articles", response_model=Page[schemas.Article])
 async def articles(request: Request, db: Session = Depends(get_db)):

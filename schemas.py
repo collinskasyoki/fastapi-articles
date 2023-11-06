@@ -11,6 +11,15 @@ class Category(BaseModel):
         orm_mode = True
 
 
+class Site(BaseModel):
+    id: int
+    link: str
+    description: str
+
+    class Config:
+        orm_mode = True
+
+
 class Article(BaseModel):
     id: int
     date_published: datetime.date

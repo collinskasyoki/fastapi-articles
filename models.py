@@ -37,3 +37,11 @@ class Article(Base):
     @hybrid_property
     def image_thumbnail_url(self):
         return "thumbnails/" + self.image_file
+
+
+class Site(Base):
+    __tablename__ = "site"
+
+    id = Column(Integer, primary_key=True, index=True)
+    link = Column(String)
+    description = Column(Text, index=True)

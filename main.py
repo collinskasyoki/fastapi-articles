@@ -100,4 +100,10 @@ async def one_article(request: Request, id: int, db: Session = Depends(get_db)):
 
     return article_data
 
+@app.get("/sites", response_model=list[schemas.Site])
+async def sites(db: Session = Depends(get_db)):
+    sites = db.query(models.Site).all()
+
+    return sites
+
 add_pagination(app)

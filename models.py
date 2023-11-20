@@ -23,7 +23,7 @@ class Article(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     content = Column(Text, index=True)
-    date_modified = Column(String)
+    #date_modified = Column(String)
     date_published = Column(String)
     image_file = Column(String)
     link = Column(String)

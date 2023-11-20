@@ -89,7 +89,7 @@ async def one_article(request: Request, id: int, db: Session = Depends(get_db)):
     article_data = {
         "id": article.id,
         "content": article.content,
-        "date_modified": article.date_modified,
+        # "date_modified": article.date_modified,
         "date_published": article.date_published,
         "link": article.link,
         "title": article.title,

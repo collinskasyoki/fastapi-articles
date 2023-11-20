@@ -34,7 +34,7 @@ class Article(BaseModel):
 class OneArticle(BaseModel):
     id: int
     content: str
-    date_modified: str
+    # date_modified: str
     date_published: datetime.date
     link: str
     title: str
